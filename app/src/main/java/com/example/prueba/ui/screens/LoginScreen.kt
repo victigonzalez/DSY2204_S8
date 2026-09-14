@@ -135,10 +135,9 @@ fun LoginScreen(
                     correo.isBlank() || contrasena.isBlank() ->
                         mensajeError = "Debe completar correo y contraseña."
                     UsuarioRepository.validarCredenciales(correo, contrasena) -> {
-                        val usuario = UsuarioRepository.usuarios
-                            .first { it.correo.equals(correo, ignoreCase = true) }
+                        val usuario = UsuarioRepository.buscarPorCorreo(correo)
                         mensajeError = null
-                        onLoginExitoso(usuario.nombre)
+                        onLoginExitoso(usuario?.nombre ?: correo)
                     }
                     else -> mensajeError = "Credenciales incorrectas."
                 }
