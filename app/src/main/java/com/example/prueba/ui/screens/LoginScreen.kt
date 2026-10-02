@@ -34,7 +34,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.prueba.data.UsuarioRepository
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.prueba.ui.viewmodel.AuthViewModel
 
 /**
  * View de Login.
@@ -49,12 +51,14 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     onLoginExitoso: (String) -> Unit,
     onIrARegistro: () -> Unit,
-    onIrARecuperar: () -> Unit
+    onIrARecuperar: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
 ) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var recordarme by remember { mutableStateOf(false) }
-    var mensajeError by remember { mutableStateOf<String?>(null) }
+    val authState by authViewModel.uiState.collectAsState()
+    val mensajeError = authState.error
 
     Column(
         modifier = Modifier
@@ -128,23 +132,13 @@ fun LoginScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        // Botón principal
+        // Botón principal (autenticación con Firebase + respaldo local)
         Button(
-            onClick = {
-                when {
-                    correo.isBlank() || contrasena.isBlank() ->
-                        mensajeError = "Debe completar correo y contraseña."
-                    UsuarioRepository.validarCredenciales(correo, contrasena) -> {
-                        val usuario = UsuarioRepository.buscarPorCorreo(correo)
-                        mensajeError = null
-                        onLoginExitoso(usuario?.nombre ?: correo)
-                    }
-                    else -> mensajeError = "Credenciales incorrectas."
-                }
-            },
+            onClick = { authViewModel.login(correo, contrasena, onLoginExitoso) },
+            enabled = !authState.cargando,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ingresar")
+            Text(if (authState.cargando) "Ingresando…" else "Ingresar")
         }
 
         Spacer(Modifier.height(8.dp))

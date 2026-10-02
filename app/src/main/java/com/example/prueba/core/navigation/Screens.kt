@@ -13,6 +13,18 @@ object Registro
 @Serializable
 object RecuperarContrasena
 
-/** Pantalla de bienvenida a la que se llega tras un login correcto. */
+/** Menú principal al que se llega tras un login correcto. */
 @Serializable
-data class Inicio(val nombreUsuario: String)
+data class HomeMenu(val nombreUsuario: String)
+
+/** View Escribir (texto a voz). */
+@Serializable
+object Escribir
+
+/** View Hablar (voz a texto). */
+@Serializable
+object Hablar
+
+/** View BuscarDispositivo (geolocalización). */
+@Serializable
+object BuscarDispositivo

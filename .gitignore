@@ -15,3 +15,7 @@
 local.properties
 
 .idea/
+
+# S8: no subir el keystore de firma
+*.jks
+*.keystore

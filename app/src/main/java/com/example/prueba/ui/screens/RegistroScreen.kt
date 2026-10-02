@@ -33,9 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.prueba.data.PerfilBasico
 import com.example.prueba.data.TipoUsuario
-import com.example.prueba.data.Usuario
 import com.example.prueba.data.UsuarioRepository
+import com.example.prueba.ui.viewmodel.AuthViewModel
 
 /**
  * View de Registro de usuario. Alimenta el array de usuarios del repositorio.
@@ -50,7 +52,8 @@ import com.example.prueba.data.UsuarioRepository
 fun RegistroScreen(
     modifier: Modifier = Modifier,
     onRegistroExitoso: () -> Unit,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
 ) {
     var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
@@ -224,8 +227,9 @@ fun RegistroScreen(
                             mensaje = "El correo ya se encuentra registrado."
                         }
                         else -> {
-                            UsuarioRepository.registrar(
-                                Usuario(
+                            // Registra en Firebase Auth + Firestore (con respaldo local).
+                            authViewModel.registrar(
+                                PerfilBasico(
                                     nombre = nombre,
                                     correo = correo,
                                     contrasena = contrasena,
@@ -233,10 +237,11 @@ fun RegistroScreen(
                                     medioContacto = medioSeleccionado,
                                     aceptaTerminos = aceptaTerminos
                                 )
-                            )
-                            mensajeEsError = false
-                            mensaje = "Usuario registrado correctamente."
-                            nombre = ""; correo = ""; contrasena = ""; confirmar = ""
+                            ) {
+                                mensajeEsError = false
+                                mensaje = "Usuario registrado correctamente."
+                                nombre = ""; correo = ""; contrasena = ""; confirmar = ""
+                            }
                         }
                     }
                 },

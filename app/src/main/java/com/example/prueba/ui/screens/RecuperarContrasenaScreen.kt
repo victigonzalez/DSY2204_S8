@@ -30,7 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.prueba.data.UsuarioRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.prueba.ui.viewmodel.AuthViewModel
 
 /**
  * View de Recuperar contraseña.
@@ -41,7 +42,8 @@ import com.example.prueba.data.UsuarioRepository
 @Composable
 fun RecuperarContrasenaScreen(
     modifier: Modifier = Modifier,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
 ) {
     var correo by remember { mutableStateOf("") }
 
@@ -116,18 +118,14 @@ fun RecuperarContrasenaScreen(
 
         Button(
             onClick = {
-                when {
-                    correo.isBlank() -> {
-                        mensajeEsError = true
-                        mensaje = "Debe ingresar un correo."
-                    }
-                    !UsuarioRepository.existeCorreo(correo) -> {
-                        mensajeEsError = true
-                        mensaje = "El correo no está registrado."
-                    }
-                    else -> {
-                        mensajeEsError = false
-                        mensaje = "Instrucciones enviadas mediante: $metodoSeleccionado."
+                if (correo.isBlank()) {
+                    mensajeEsError = true
+                    mensaje = "Debe ingresar un correo."
+                } else {
+                    // Recuperación con Firebase Auth (respaldo local en el ViewModel).
+                    authViewModel.recuperar(correo) { resultado ->
+                        mensajeEsError = resultado.contains("no está registrado")
+                        mensaje = "$resultado ($metodoSeleccionado)"
                     }
                 }
             },
